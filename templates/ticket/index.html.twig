@@ -2,11 +2,15 @@
 
 {% block title %}Liste des tickets{% endblock %}
 
+{% block stylesheets %}
+    <link rel="stylesheet" href="//cdn.datatables.net/1.12.0/css/jquery.dataTables.min.css">
+{% endblock %}
+
 {% block body %}
+<div class="container">
+<h1 class="my-3">Liste des tickets</h1>
 
-<h1>Liste des tickets</h1>
-
-<table>
+<table class="table table-striped tabled-bordered" id="myTable">
     <thead>
         <tr>
             <th>ID</th>
@@ -26,5 +30,15 @@
     {% endfor %}
 </tbody>
 </table>
+</div>
+{% endblock %}
 
+{% block javascripts %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://cdn.datatables.net/1.12.0/js/jquery.dataTables.min.js"></script>
+    <script>
+    $(document).ready( function () {
+    $('#myTable').DataTable();
+} );
+    </script>
 {% endblock %}

@@ -50,14 +50,7 @@ class TicketController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $ticket->setObject($form['object']->getData())
-                ->setMessage($form['message']->getData())
-                ->setDepartment($form['department']->getData());
-
-                // $manager = $doctrine->getManager();
-                // $manager->persist($ticket);
-                // $manager->flush();
-
+           
                 //Nouveauté Symfony 5.4
                 $this->ticketRepository->add($ticket, true);
                 

@@ -13,6 +13,10 @@
 
     </head>
     <body>
+        {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+            <p>Vous êtes connecté en tant que {{ app.user.name }}</p>
+            <a href="{{ path('app_logout') }}">Déconnecter</a>
+        {% endif %}
         {% block body %}{% endblock %}
     </body>
     <!-- JavaScript Bundle with Popper -->

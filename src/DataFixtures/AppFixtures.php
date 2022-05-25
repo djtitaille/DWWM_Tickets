@@ -43,7 +43,7 @@ class AppFixtures extends Fixture
 
             }
 
-            //On nourrir l'objet User
+            //On nourrit l'objet User
                 $user->setName($faker->name())
                     ->setPassword($hash);
 

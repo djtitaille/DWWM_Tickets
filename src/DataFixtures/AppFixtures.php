@@ -3,17 +3,53 @@
 namespace App\DataFixtures;
 
 use Faker\Factory;
+use App\Entity\User;
 use App\Entity\Ticket;
 use App\Entity\Department;
 use Doctrine\Persistence\ObjectManager;
 use App\Faker\Provider\ImmutableDateTime;
 use Doctrine\Bundle\FixturesBundle\Fixture;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class AppFixtures extends Fixture
 {
+    protected UserPasswordHasherInterface $hasher;
+
+    public function __construct(UserPasswordHasherInterface $hasher)
+    {
+        $this->hasher = $hasher;
+    }
+
     public function load(ObjectManager $manager): void
     {
         $faker = Factory::create('fr_FR');
+
+        //Création de 5 utilisateurs
+        for ($u=0; $u<5; $u++){
+
+            //Création d'un nouvel objet User
+            $user = new User;
+
+            //Hashage de notre mot de passe avec les paramètres de sécurité de notre $user
+            // dans /config/packages/security.yaml
+            $hash = $this->hasher->hashPassword($user, "password");
+
+            //Si premier utilisateur créé on lui donne le role d'admin
+            if ($u === 0){
+                $user->setRoles(["ROLE_ADMIN"])
+                    ->setEmail("admin@test.test");
+            } else {
+                $user->setEmail("user{$u}@test.test");
+
+            }
+
+            //On nourrir l'objet User
+                $user->setName($faker->name())
+                    ->setPassword($hash);
+
+            //On fait persister les données
+            $manager->persist($user);
+        }
 
         //Création de 10 départements
         for ($d=0; $d<10; $d++){

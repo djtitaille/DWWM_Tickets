@@ -41,7 +41,7 @@ class TicketController extends AbstractController
      * @Route("/create", name="ticket_create")
      * @Route("/update/{id}", name="ticket_update", requirements={"id"="\d+"})
      */
-    public function ticket(Ticket $ticket = null, Request $request)
+    public function ticket(Ticket $ticket = null, Request $request) : Response
     {
         if(!$ticket){
         $ticket = new Ticket;
@@ -71,24 +71,13 @@ class TicketController extends AbstractController
     }
 
     /**
-     * @Route("/ticket/update/{id}", name="ticket_update", requirements={"id"="\d+"})
+     * @Route("/delete/{id}", name="ticket_delete", requirements={"id"="\d+"})
      */
-  /*  public function updateTicket(Ticket $ticket,Request $request) {
+    public function deleteTicket(Ticket $ticket) : Response
+    {
+        $this->ticketRepository->remove($ticket, true);
 
-        $form = $this->createForm(TicketType::class, $ticket, []);
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-           
-            //Nouveauté Symfony 5.4
-            $this->ticketRepository->add($ticket, true);
-            
-            return $this->redirectToRoute('app_ticket');
-    }
+        return $this->redirectToRoute('app_ticket');
 
-        return $this->render('ticket/userForm.html.twig', [
-            'form' => $form->createView(),
-            'title' => "Update du formulaire :  {$ticket->getId()}"
-        ]);
     }
-*/
 }

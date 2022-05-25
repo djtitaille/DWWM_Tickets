@@ -10,6 +10,8 @@
 <div class="container">
 <h1 class="my-3">Liste des tickets</h1>
 
+<a href="{{ path('ticket_create') }}" class="btn btn-success">Ajouter</a>
+
 <table class="table table-striped tabled-bordered" id="myTable">
     <thead>
         <tr>
@@ -18,6 +20,8 @@
             <th>Created At</th>
             <th>Department</th>
             <th>Status</th>
+            <th></th>
+            <th></th>
         </tr>
     </thead>
 <tbody>
@@ -28,6 +32,8 @@
             <td>{{ ticket.createdAt | date('d/m/Y H:i')}}</td>
             <td>{{ ticket.department.name }}</td>
             <td>{{ ticket.isActive }}</td>
+            <td><a href="{{ path('ticket_update', {'id' : ticket.id}) }}" class="btn btn-info">Modifier</a></td>
+            <td><a href="{{ path('ticket_delete', {'id' : ticket.id}) }}" class="btn btn-danger">Supprimer</a></td>
         </tr>
     {% endfor %}
 </tbody>

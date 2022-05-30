@@ -63,10 +63,13 @@ class AppFixtures extends Fixture
             $manager->persist($department);
         }
 
+
         //On push les Department en BDD
         $manager->flush();
 
         $allDepartments = $manager->getRepository(Department::class)->findAll();
+
+        
 
         $allUsers = $manager->getRepository(User::class)->findAll();
 

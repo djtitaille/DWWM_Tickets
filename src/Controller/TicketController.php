@@ -145,7 +145,8 @@ class TicketController extends AbstractController
 
             $spreadsheet = new Spreadsheet ();
             $sheet = $spreadsheet->getActiveSheet ();
-            $sheet->setCellValue ('A1', 'Document généré le : ' . date('d/m/Y'));
+            $sheet->setCellValue ('A1', 'Liste des tickets pour l\'utilisateur : ' . $user->getUsername());
+            $sheet->mergeCells('A1:E1');
             $sheet->setTitle("Liste des tickets");
 
             //Set Column names
@@ -159,16 +160,80 @@ class TicketController extends AbstractController
             $columnLetter = 'A';
             foreach ($columnNames as $columnName) {
                 $sheet->setCellValue ($columnLetter . '3', $columnName);
+                $sheet->getColumnDimension($columnLetter)->setAutoSize(true);
                 $columnLetter++;
             }
-            // foreach ($tickets as $key => $ticket) {
-            //     $sheet->setCellValue ('A' . ($key + 4), $ticket->getId());
-            //     $sheet->setCellValue ('B' . ($key + 4), $ticket->getMessage());
-            //     $sheet->setCellValue ('C' . ($key + 4), $ticket->getCreatedAt()->format('d/m/Y'));
-            //     $sheet->setCellValue ('D' . ($key + 4), $ticket->getDepartment()->getName());
-            //     $sheet->setCellValue ('E' . ($key + 4), $ticket->getStatus()->getName());
-            // }
+             foreach ($tickets as $key => $ticket) {
+                $sheet->setCellValue ('A' . ($key + 4), $ticket->getId());
+                $sheet->setCellValue ('B' . ($key + 4), $ticket->getObject());
+                $sheet->setCellValue ('C' . ($key + 4), $ticket->getCreatedAt()->format('d/m/Y'));
+                $sheet->setCellValue ('D' . ($key + 4), $ticket->getDepartment()->getName());
+                $sheet->setCellValue ('E' . ($key + 4), $ticket->getIsActive());
+            }
 
+            // -- Style de la feuille de calcul --
+            $styleArrayHead = [
+                'font' => [
+                    'bold' => true,
+                ],
+                'alignment' => [
+                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                ],
+                'borders' => [
+                    'outline' => [
+                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_MEDIUM,
+                    ],
+                    'vertical' => [
+                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    ],
+                ],
+            ];
+                
+            $styleArray = [
+                        'font' => [
+                            'bold' => true,
+                        ],
+                        'alignment' => [
+                            'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT,
+                        ],
+                        'borders' => [
+                            'top' => [
+                                'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                            ],
+                        ],
+                        'fill' => [
+                            'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_GRADIENT_LINEAR,
+                            'rotation' => 90,
+                            'startColor' => [
+                                'argb' => 'FFA0A0A0',
+                            ],
+                            'endColor' => [
+                                'argb' => 'FFFFFFFF',
+                            ],
+                        ],
+                    ];
+
+            $styleArrayBody = [
+                'alignement' => [
+                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                ],
+                'borders' => [
+                    'outline' => [
+                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_MEDIUM,
+                    ],
+                    'vertical' => [
+                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    ],
+                    'horizontal' => [
+                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    ],
+                ],
+            ];
+
+            $sheet->getStyle('A1:E1')->applyFromArray($styleArray);
+            $sheet->getStyle('A3:E3')->applyFromArray($styleArrayHead);
+            $sheet->getStyle('A4:E' . (count($tickets) + 3))->applyFromArray($styleArrayBody);
+            
             //Création du fichier xlsx
             $writer = new Xlsx($spreadsheet);
 

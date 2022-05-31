@@ -1,2 +1,2 @@
-# MVP Gestion de tickets
+# mvp
 _Mvp created with Symfony 5_

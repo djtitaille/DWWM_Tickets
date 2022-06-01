@@ -10,11 +10,12 @@
         {% block stylesheets %}
             {{ encore_entry_link_tags('app') }}
         {% endblock %}
+        {% include 'shared/_language.selector.html.twig' %}
 
     </head>
     <body>
         {% if is_granted('IS_AUTHENTICATED_FULLY') %}
-            <p>Vous êtes connecté en tant que {{ app.user.name }}</p>
+            <p>{{ "user.connected_as" | trans}} {{ app.user.name }}</p>
             <a href="{{ path('app_logout') }}">Déconnecter</a>
         {% endif %}
         {% block body %}{% endblock %}

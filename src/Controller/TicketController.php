@@ -55,16 +55,19 @@ class TicketController extends AbstractController
      */
     public function ticket(Ticket $ticket = null, Request $request) : Response
     {
+        $user = $this->getUser();
+
         if(!$ticket){
         $ticket = new Ticket;
 
         $ticket->setIsActive(true)
+            ->setUser($user)
             ->setCreatedAt(new \DateTimeImmutable());
         //$title = 'Création d\'un ticket';
         $title = $this->ts->trans("title.ticket.create");
         } else {
             $title = "Update du formulaire :  {$ticket->getId()}";
-            $title = $this->ts->trans("title.ticket.update"). "{$ticket->getId}";
+            $title = $this->ts->trans("title.ticket.update")."{$ticket->getId()}";
         }
 
         $form = $this->createForm(TicketType::class, $ticket, []);
@@ -75,6 +78,12 @@ class TicketController extends AbstractController
            
                 //Nouveauté Symfony 5.4
                 $this->ticketRepository->add($ticket, true);
+
+                if ($request->attributes->get("_route")==="ticket_create") {
+                    $this->addFlash('success', 'Le ticket a été créé avec succès');
+                } else {
+                    $this->addFlash('info', 'Le ticket a bien été mis à jour');
+                }
                 
                 return $this->redirectToRoute('app_ticket');
         }
@@ -90,6 +99,7 @@ class TicketController extends AbstractController
     public function deleteTicket(Ticket $ticket) : Response
     {
         $this->ticketRepository->remove($ticket, true);
+        $this->addFlash('danger', 'Le ticket a bien été supprimé');
 
         return $this->redirectToRoute('app_ticket');
 

@@ -6,11 +6,13 @@ use Dompdf\Dompdf;
 use Dompdf\Options;
 use App\Entity\Ticket;
 use App\Form\TicketType;
+use App\Controller\MailerController;
 use App\Repository\TicketRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -22,13 +24,14 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
  */
 class TicketController extends AbstractController
 {
-
+    protected MailerInterface $mailer;
     protected TicketRepository $ticketRepository;
     protected TranslatorInterface $translator;
 
-    public function __construct(TicketRepository $ticketRepository, TranslatorInterface $translator){
+    public function __construct(TicketRepository $ticketRepository, TranslatorInterface $translator, MailerInterface $mailer){
         $this->ticketRepository = $ticketRepository;
         $this->ts = $translator;
+        $this->mailer = $mailer;
     }
 
     /**
@@ -81,8 +84,10 @@ class TicketController extends AbstractController
 
                 if ($request->attributes->get("_route")==="ticket_create") {
                     $this->addFlash('success', 'Le ticket a été créé avec succès');
+                    MailerController::sendEmail($this->mailer, "user1@test.fr", "Ticket ajouté", " a bien été ajouté", $ticket);
                 } else {
                     $this->addFlash('info', 'Le ticket a bien été mis à jour');
+                    MailerController::sendEmail($this->mailer, "user1@test.fr", "Ticket modifié", " a bien été modifié", $ticket);
                 }
                 
                 return $this->redirectToRoute('app_ticket');
@@ -96,11 +101,12 @@ class TicketController extends AbstractController
     /**
      * @Route("/delete/{id}", name="ticket_delete", requirements={"id"="\d+"})
      */
-    public function deleteTicket(Ticket $ticket) : Response
+    public function deleteTicket(Ticket $ticket, MailerInterface $mailer) : Response
     {
         $this->ticketRepository->remove($ticket, true);
         $this->addFlash('danger', 'Le ticket a bien été supprimé');
-
+        MailerController::sendEmail($this->mailer, "user1@test.fr", "Ticket Supprimé", " a bien été supprimé", $ticket);
+        
         return $this->redirectToRoute('app_ticket');
 
     }

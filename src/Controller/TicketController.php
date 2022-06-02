@@ -268,4 +268,13 @@ class TicketController extends AbstractController
             //Renvoie le fichier excel
             return $this->file($temp_file, $fileName, ResponseHeaderBag::DISPOSITION_INLINE);
      }
+
+      /**
+     * @Route("/details/{id}", name="ticket_detail", requirements={"id"="\d+"})
+     */
+    public function detailTicket(Ticket $ticket) : Response
+    {
+        return $this->render('ticket/detail.html.twig', ['ticket' => $ticket]);
+    }
+
 }

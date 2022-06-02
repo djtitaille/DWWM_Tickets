@@ -28,7 +28,7 @@
         </thead>
         <tbody>
             {%for ticket in tickets %}
-                <tr>
+                <tr class="link" data-href="{{ path('ticket_detail', {'id': ticket.id}) }}" style="cursor: pointer;">
                     <th scope ="row">{{ ticket.id }}</th>
                     <td>{{ ticket.object }}</td>
                     <td>{{ ticket.createdAt | date('d/m/Y H:i')}}</td>
@@ -47,6 +47,10 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
     <script src="https://cdn.datatables.net/1.12.0/js/jquery.dataTables.min.js"></script>
     <script>
+    $(document).on('click', 'tr.link:not(a)', function(i){
+        i.stopPropagation();
+        window.location.href =$(this).data('href');                     
+    });
     $(document).ready( function () {
     $('#myTable').DataTable();
 } );

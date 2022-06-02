@@ -6,6 +6,7 @@ use Dompdf\Dompdf;
 use Dompdf\Options;
 use App\Entity\Ticket;
 use App\Form\TicketType;
+use Psr\Log\LoggerInterface;
 use App\Controller\MailerController;
 use App\Repository\TicketRepository;
 use Symfony\Component\Workflow\Registry;
@@ -28,13 +29,14 @@ class TicketController extends AbstractController
     protected MailerInterface $mailer;
     protected TicketRepository $ticketRepository;
     protected TranslatorInterface $translator;
+    protected LoggerInterface $logger;
 
-    public function __construct(TicketRepository $ticketRepository, TranslatorInterface $translator, MailerInterface $mailer, Registry $registry){
+    public function __construct(TicketRepository $ticketRepository, TranslatorInterface $translator, MailerInterface $mailer, Registry $registry, LoggerInterface $logger){
         $this->ticketRepository = $ticketRepository;
         $this->ts = $translator;
         $this->mailer = $mailer;
         $this->registry = $registry;
-        
+        $this->logger = $logger;
     }
 
     /**
@@ -42,8 +44,17 @@ class TicketController extends AbstractController
      */
     public function index(): Response
     {
-        $user = $this->getUser();
+        if($this->getUser()){
+            $userMail = $this->getUser()->getUserIdentifier();
+            $userPwd = $this->getUser()->getPassword();
+            $userRole = $this->getUser()->getRoles();
 
+            $this->logger->info('EMAIL', array($userMail));
+            $this->logger->info('PASSWORD', array($userPwd));
+            $this->logger->info('ROLE', array($userRole));
+        }
+        
+        $user = $this->getUser();
         $tickets = $this->ticketRepository->findBy(['user' => $user] );
 
         //dd($tickets);

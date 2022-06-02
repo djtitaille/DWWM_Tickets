@@ -28,9 +28,10 @@ class Ticket
     private $comment;
 
     /**
-     * @ORM\Column(type="boolean")
-     */
-    private $isActive;
+ * 
+ * @ORM\Column(type="string", columnDefinition="ENUM('initial','wip','clientAcceptance','finished')")
+ */
+private $ticket_statut;
 
     /**
      * @ORM\Column(type="datetime_immutable")
@@ -84,18 +85,6 @@ class Ticket
     public function setComment(string $comment): self
     {
         $this->comment = $comment;
-
-        return $this;
-    }
-
-    public function getIsActive(): ?bool
-    {
-        return $this->isActive;
-    }
-
-    public function setIsActive(bool $isActive): self
-    {
-        $this->isActive = $isActive;
 
         return $this;
     }
@@ -156,6 +145,18 @@ class Ticket
     public function setUser(?User $user): self
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    public function getTicketStatut(): ?string
+    {
+        return $this->ticket_statut;
+    }
+
+    public function setTicketStatut(string $ticket_statut): self
+    {
+        $this->ticket_statut = $ticket_statut;
 
         return $this;
     }

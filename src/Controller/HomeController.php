@@ -23,7 +23,7 @@ class HomeController extends AbstractController
     {   
         $countActiveTicket = count($this->ticketRepository->getAllActive());
         $countNoActiveTicket = count($this->ticketRepository->getAllNoActive());
-       //count($this->ticketRepository->findBy(['isActive' => true])));
+       //count($this->ticketRepository->findBy(['TicketStatut' => true])));
 
         
         $tabDep = [];

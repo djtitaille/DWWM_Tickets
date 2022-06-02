@@ -8,6 +8,7 @@ use App\Entity\Ticket;
 use App\Form\TicketType;
 use App\Controller\MailerController;
 use App\Repository\TicketRepository;
+use Symfony\Component\Workflow\Registry;
 use Doctrine\Persistence\ManagerRegistry;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -28,10 +29,12 @@ class TicketController extends AbstractController
     protected TicketRepository $ticketRepository;
     protected TranslatorInterface $translator;
 
-    public function __construct(TicketRepository $ticketRepository, TranslatorInterface $translator, MailerInterface $mailer){
+    public function __construct(TicketRepository $ticketRepository, TranslatorInterface $translator, MailerInterface $mailer, Registry $registry){
         $this->ticketRepository = $ticketRepository;
         $this->ts = $translator;
         $this->mailer = $mailer;
+        $this->registry = $registry;
+        
     }
 
     /**
@@ -63,12 +66,16 @@ class TicketController extends AbstractController
         if(!$ticket){
         $ticket = new Ticket;
 
-        $ticket->setIsActive(true)
+        $ticket->setTicketStatut('initial')
             ->setUser($user)
             ->setCreatedAt(new \DateTimeImmutable());
         //$title = 'Création d\'un ticket';
         $title = $this->ts->trans("title.ticket.create");
         } else {
+            $workflow = $this->registry->get($ticket, 'ticketTraitement');
+            if ($ticket->getTicketStatut() != 'wip'){
+                $workflow->apply($ticket, 'to_wip');
+            }
             $title = "Update du formulaire :  {$ticket->getId()}";
             $title = $this->ts->trans("title.ticket.update")."{$ticket->getId()}";
         }
@@ -109,6 +116,18 @@ class TicketController extends AbstractController
         
         return $this->redirectToRoute('app_ticket');
 
+    }
+
+    /** 
+ * @Route("/close/{id}", name="ticket_close",requirements={"id"="\d+"})
+ */
+    public function closeTicket(Ticket $ticket): Response
+    {
+        $workflow = $this->registry->get($ticket, 'ticketTraitement');
+        $workflow->apply($ticket, 'to_finished');
+        $this->ticketRepository->add($ticket, true);
+
+        return $this->redirectToRoute('app_ticket');
     }
 
     /**
@@ -189,7 +208,7 @@ class TicketController extends AbstractController
                 $sheet->setCellValue ('B' . ($key + 4), $ticket->getObject());
                 $sheet->setCellValue ('C' . ($key + 4), $ticket->getCreatedAt()->format('d/m/Y'));
                 $sheet->setCellValue ('D' . ($key + 4), $ticket->getDepartment()->getName());
-                $sheet->setCellValue ('E' . ($key + 4), $ticket->getIsActive());
+                $sheet->setCellValue ('E' . ($key + 4), $ticket->getTicketStatut());
             }
 
             // -- Style de la feuille de calcul --
